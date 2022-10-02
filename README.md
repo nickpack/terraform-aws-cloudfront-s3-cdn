@@ -32,18 +32,6 @@ This is relatively opinionated, asking only for things that you're likely to wan
 * Replication - this isn't difficult, but I haven't needed it
 * Versioning - this is really easy to implement, but I haven't needed it
 
-## What could do with improving
-
-* Encryption at rest is currently done using AES256 - in this day and age I should probably have done this with a KMS key - I'll probably look at this later
-
-## License
-
-Licensed under the Apache License, Version 2.0 (the "License");
-
-## Author
-
-Nick Pack <https://github.com/nickpack>
-
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -118,3 +106,15 @@ Nick Pack <https://github.com/nickpack>
 | <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | n/a |
 | <a name="output_ssl_cert_arn"></a> [ssl\_cert\_arn](#output\_ssl\_cert\_arn) | n/a |
 <!-- END_TF_DOCS -->
+
+## What could do with improving
+
+* Encryption at rest is currently done using AES256 - in this day and age I should probably have done this with a KMS key - I'll probably look at this later
+
+## License
+
+Licensed under the Apache License, Version 2.0 (the "License");
+
+## Author
+
+Nick Pack <https://github.com/nickpack>
