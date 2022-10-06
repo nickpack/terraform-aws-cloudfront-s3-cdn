@@ -15,29 +15,36 @@
 */
 
 output "cdn_subdomain" {
-  value = var.cdn_subdomain
+  description = "The configured subdomain for your CDN"
+  value       = var.cdn_subdomain
 }
 
 output "domain_name" {
-  value = var.domain_name
+  description = "The configured domain name for your CDN"
+  value       = var.domain_name
 }
 
 output "cdn_fqdn" {
-  value = local.cdn_fqdn
+  description = "The FQDN of your CDN"
+  value       = local.cdn_fqdn
 }
 
 output "cdn_bucket_arn" {
-  value = aws_s3_bucket.cdn_bucket.arn
+  description = "The ARN of your static files bucket"
+  value       = aws_s3_bucket.cdn_bucket.arn
 }
 
 output "ssl_cert_arn" {
-  value = aws_acm_certificate.ssl_certificate.arn
+  description = "The ARN of the SSL certificate for your CDN CloudFront distribution"
+  value       = aws_acm_certificate.ssl_certificate.arn
 }
 
 output "cdn_bucket_regional_domain_name" {
-  value = aws_s3_bucket.cdn_bucket.bucket_regional_domain_name
+  description = "The regional bucket domain name for your static files bucket"
+  value       = aws_s3_bucket.cdn_bucket.bucket_regional_domain_name
 }
 
 output "cloudfront_distribution_arn" {
-  value = aws_cloudfront_distribution.cdn_distribution.arn
+  description = "The ARN of your CDN CloudFront distribution"
+  value       = aws_cloudfront_distribution.cdn_distribution.arn
 }

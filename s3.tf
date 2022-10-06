@@ -64,9 +64,9 @@ resource "aws_s3_bucket" "cdn_log_bucket" {
   count  = var.enable_logging ? 1 : 0
   bucket = "${local.cdn_fqdn}-logs"
 
-  /* lifecycle {
+  lifecycle {
     prevent_destroy = true
-  } */
+  }
 }
 
 resource "aws_s3_bucket_acl" "cdn_log_bucket_acl" {

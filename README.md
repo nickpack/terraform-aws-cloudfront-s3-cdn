@@ -98,13 +98,13 @@ This is relatively opinionated, asking only for things that you're likely to wan
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cdn_bucket_arn"></a> [cdn\_bucket\_arn](#output\_cdn\_bucket\_arn) | n/a |
-| <a name="output_cdn_bucket_regional_domain_name"></a> [cdn\_bucket\_regional\_domain\_name](#output\_cdn\_bucket\_regional\_domain\_name) | n/a |
-| <a name="output_cdn_fqdn"></a> [cdn\_fqdn](#output\_cdn\_fqdn) | n/a |
-| <a name="output_cdn_subdomain"></a> [cdn\_subdomain](#output\_cdn\_subdomain) | n/a |
-| <a name="output_cloudfront_distribution_arn"></a> [cloudfront\_distribution\_arn](#output\_cloudfront\_distribution\_arn) | n/a |
-| <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | n/a |
-| <a name="output_ssl_cert_arn"></a> [ssl\_cert\_arn](#output\_ssl\_cert\_arn) | n/a |
+| <a name="output_cdn_bucket_arn"></a> [cdn\_bucket\_arn](#output\_cdn\_bucket\_arn) | The ARN of your static files bucket |
+| <a name="output_cdn_bucket_regional_domain_name"></a> [cdn\_bucket\_regional\_domain\_name](#output\_cdn\_bucket\_regional\_domain\_name) | The regional bucket domain name for your static files bucket |
+| <a name="output_cdn_fqdn"></a> [cdn\_fqdn](#output\_cdn\_fqdn) | The FQDN of your CDN |
+| <a name="output_cdn_subdomain"></a> [cdn\_subdomain](#output\_cdn\_subdomain) | The configured subdomain for your CDN |
+| <a name="output_cloudfront_distribution_arn"></a> [cloudfront\_distribution\_arn](#output\_cloudfront\_distribution\_arn) | The ARN of your CDN CloudFront distribution |
+| <a name="output_domain_name"></a> [domain\_name](#output\_domain\_name) | The configured domain name for your CDN |
+| <a name="output_ssl_cert_arn"></a> [ssl\_cert\_arn](#output\_ssl\_cert\_arn) | The ARN of the SSL certificate for your CDN CloudFront distribution |
 <!-- END_TF_DOCS -->
 
 ## What could do with improving
