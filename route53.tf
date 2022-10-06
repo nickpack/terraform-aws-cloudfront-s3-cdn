@@ -26,6 +26,18 @@ resource "aws_route53_record" "cdn-a" {
   }
 }
 
+resource "aws_route53_record" "cdn-aaaa" {
+  zone_id = data.aws_route53_zone.dns_zone.zone_id
+  name    = local.cdn_fqdn
+  type    = "AAAA"
+
+  alias {
+    name                   = aws_cloudfront_distribution.cdn_distribution.domain_name
+    zone_id                = aws_cloudfront_distribution.cdn_distribution.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 resource "aws_route53_record" "cert_validation" {
   for_each = {
     for validation_options in aws_acm_certificate.ssl_certificate.domain_validation_options : validation_options.domain_name => {
