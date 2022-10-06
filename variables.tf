@@ -78,3 +78,27 @@ variable "enable_logging" {
   type        = bool
   default     = true
 }
+
+variable "log_initial_storage_period_days" {
+  description = "The number of days before logs are moved into Amazon S3 Standard-Infrequent Access - has to be greater than or equal to 30 days"
+  type        = number
+  default     = 30
+}
+
+variable "log_long_term_storage_start_days" {
+  description = "The number of days before logs are moved into Amazon S3 Glacier Instant Retrieval"
+  type        = number
+  default     = 60
+}
+
+variable "log_total_retention_period_days" {
+  description = "Total number of days to retain logs in the logging bucket"
+  type        = number
+  default     = 365
+}
+
+variable "allow_force_destroy_log_bucket" {
+  description = "Allow forcible destruction of the log bucket - Not recommended"
+  type        = bool
+  default     = false
+}

@@ -2,7 +2,7 @@
 
 A terraform module to quickly provision an S3 & Cloudfront powered CDN and populate the bucket with files from a local directory (File state is managed by terraform).
 
-There are plenty of examples of similar things on the internet, some good, some bad, a lot are outdated and using deprecated aws provider features, or ask far more questions than I want to answer.
+There are plenty of examples of similar things on the internet, some good, some bad, a lot are either bloated, outdated and using deprecated aws provider features, or ask far more questions than I want to answer.
 
 This is relatively opinionated, asking only for things that you're likely to want to configure rather than giving you 10000000 settings.
 
@@ -18,7 +18,7 @@ This is relatively opinionated, asking only for things that you're likely to wan
 ### Optionally (Enabled by default)
 
 * S3 and CloudFront access logging
-* An S3 bucket for cloudfront/s3 access logging encrypted at rest
+* An S3 bucket for cloudfront/s3 access logging - encrypted at rest, configurable progression through storage classes as log data ages to reduce cost
 
 ## Prerequisites
 
@@ -26,11 +26,11 @@ This is relatively opinionated, asking only for things that you're likely to wan
 
 ## What this module doesn't do
 
-* Encryption at rest for the CDN files bucket - they are publicly served so this is probably a little overkill
+* Encryption at rest for the CDN files bucket - they are publicly served so this is probably a little overkill and requires lambda@edge to decrypt which pretty much defies the point of having something simple to serve your static files!
 * Create your hosted zone in Route53
-* Destroy your logging bucket - if you enable logging a bucket will be created but is explicitly prevented from being destroyed so that you don't accidently lose all of your access logs
 * Replication - this isn't difficult, but I haven't needed it
-* Versioning - this is really easy to implement, but I haven't needed it
+* Versioning - This messes with terraform state management of your CDN files, they will change on each apply with versioning enabled on the bucket
+* Doesn't add any WAF to the CloudFront distribution - I'll leave that bit up to you to fit to your use case
 
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
@@ -62,12 +62,14 @@ This is relatively opinionated, asking only for things that you're likely to wan
 | [aws_cloudfront_distribution.cdn_distribution](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_distribution) | resource |
 | [aws_cloudfront_origin_access_identity.cdn_origin_access_identity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudfront_origin_access_identity) | resource |
 | [aws_route53_record.cdn-a](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
+| [aws_route53_record.cdn-aaaa](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_route53_record.cert_validation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) | resource |
 | [aws_s3_bucket.cdn_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket.cdn_log_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_acl.cdn_bucket_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_acl.cdn_log_bucket_acl](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
 | [aws_s3_bucket_cors_configuration.cdn_bucket_cors](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_cors_configuration) | resource |
+| [aws_s3_bucket_lifecycle_configuration.cdn_log_bucket_lifecycle](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.cdn_bucket_logging](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_policy.allow_cloudfront_origin_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_public_access_block.cdn_bucket_public_block](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
@@ -82,6 +84,7 @@ This is relatively opinionated, asking only for things that you're likely to wan
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_allow_force_destroy_log_bucket"></a> [allow\_force\_destroy\_log\_bucket](#input\_allow\_force\_destroy\_log\_bucket) | Allow forcible destruction of the log bucket - Not recommended | `bool` | `true` | no |
 | <a name="input_cdn_subdomain"></a> [cdn\_subdomain](#input\_cdn\_subdomain) | The subdomain for your CDN | `string` | `"cdn"` | no |
 | <a name="input_cloudfront_price_class"></a> [cloudfront\_price\_class](#input\_cloudfront\_price\_class) | CloudFront Price Class, Defaults to PriceClass\_100 | `string` | `"PriceClass_100"` | no |
 | <a name="input_cors_allowed_headers"></a> [cors\_allowed\_headers](#input\_cors\_allowed\_headers) | CORS allowed headers, Defaults to Authorization and Content-Length | `list(string)` | <pre>[<br>  "Authorization",<br>  "Content-Length"<br>]</pre> | no |
@@ -91,6 +94,9 @@ This is relatively opinionated, asking only for things that you're likely to wan
 | <a name="input_cors_origins"></a> [cors\_origins](#input\_cors\_origins) | CORS origins, CDN subdomain is automatically added, additional TLDs configured here | `list(string)` | `[]` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Domain name for your hosted route53 zone | `string` | n/a | yes |
 | <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | If set to true, a logging bucket will be created and the CDN S3 bucket access logs will be written to it | `bool` | `true` | no |
+| <a name="input_log_initial_storage_period_days"></a> [log\_initial\_storage\_period\_days](#input\_log\_initial\_storage\_period\_days) | The number of days before logs are moved into Amazon S3 Standard-Infrequent Access - has to be greater than or equal to 30 days | `number` | `30` | no |
+| <a name="input_log_long_term_storage_start_days"></a> [log\_long\_term\_storage\_start\_days](#input\_log\_long\_term\_storage\_start\_days) | The number of days before logs are moved into Amazon S3 Glacier Instant Retrieval | `number` | `60` | no |
+| <a name="input_log_total_retention_period_days"></a> [log\_total\_retention\_period\_days](#input\_log\_total\_retention\_period\_days) | Total number of days to retain logs in the logging bucket | `number` | `365` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS Region to deploy into | `string` | `"eu-west-1"` | no |
 | <a name="input_source_files_path"></a> [source\_files\_path](#input\_source\_files\_path) | Path to the files for uploading to your CDN | `string` | `"./files"` | no |
 

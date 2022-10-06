@@ -64,8 +64,13 @@ resource "aws_s3_bucket" "cdn_log_bucket" {
   count  = var.enable_logging ? 1 : 0
   bucket = "${local.cdn_fqdn}-logs"
 
+  force_destroy = var.allow_force_destroy_log_bucket
+
   lifecycle {
-    prevent_destroy = true
+    /* You cant use variables here, what a crock of s**t
+    prevent_destroy = var.allow_force_destroy_log_bucket
+    */
+    prevent_destroy = false
   }
 }
 
@@ -101,4 +106,28 @@ resource "aws_s3_bucket_public_access_block" "cdn_log_bucket_public_block" {
   block_public_acls       = true
   restrict_public_buckets = true
   block_public_policy     = true
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "cdn_log_bucket_lifecycle" {
+  count  = var.enable_logging ? 1 : 0
+  bucket = aws_s3_bucket.cdn_log_bucket[0].id
+
+  rule {
+    id     = "log_retention"
+    status = "Enabled"
+
+    transition {
+      days          = var.log_initial_storage_period_days
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = var.log_long_term_storage_start_days
+      storage_class = "GLACIER_IR"
+    }
+
+    expiration {
+      days = var.log_total_retention_period_days
+    }
+  }
 }
